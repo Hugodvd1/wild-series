@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Categories Series{% endblock %}
+
+{% block body %}
+    {% for category in categories %}
+<div class ='allCategories'>
+    <h2>
+    <a href=" {{ path('category_index') }}{{category.name}}" class="nav-link active" aria-current="page">{{category.name}}</a>
+    </h2>
+</div>
+ {% endfor %}
+{% endblock %}

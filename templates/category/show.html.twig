@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Find by Categories{% endblock %}
+
+{% block body  %}
+<<div class="category">
+    <div class="category-body">
+
+        <h2 class="mt-0">{{ category.name }}</h2>
+        {% for program in programs %}
+        <h3>{{ program.title }}</h3>
+        <p></p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
