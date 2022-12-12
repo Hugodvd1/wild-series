@@ -56,18 +56,21 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
         ]
     ];
 
+    public static int $programNumber = 0;
+
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create();
 
         foreach(self::PROGRAMLIST as $key => $ProgramInfo) {
             $program = new Program();
-        $program->setTitle($ProgramInfo['Title']);
-        $program->setSynopsys($ProgramInfo['Synopsys']);
-        $program->setYear($faker->year());
-        $program->setCountry($faker->country());
-        $program->setCategory($this->getReference($ProgramInfo["Category"]));
-        $this->addReference( 'program_' . $key , $program);
+            $program->setTitle($ProgramInfo['Title']);
+            $program->setSynopsys($ProgramInfo['Synopsys']);
+            $program->setYear($faker->year());
+            $program->setCountry($faker->country());
+            $program->setCategory($this->getReference($ProgramInfo["Category"]));
+            $this->addReference( 'program_' . $key , $program);
+            self::$programNumber++;
 
         $manager->persist($program);
         }

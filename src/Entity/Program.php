@@ -7,8 +7,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: ProgramRepository::class)]
+#[UniqueEntity(
+    fields: ['title'],
+    errorPath: 'title',
+    message: 'This title is already in Database',
+)]
 class Program
 {
     #[ORM\Id]
@@ -16,13 +23,21 @@ class Program
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\EnableAutoMapping]
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private ?string $synopsys = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\File(
+        maxSize: '1024k',
+        mimeTypes: ['image/*'],
+        mimeTypesMessage: 'You want to upload not authorized',
+    )]
     private ?string $poster = null;
 
     #[ORM\ManyToOne]
@@ -30,17 +45,25 @@ class Program
     private ?Category $category = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\EnableAutoMapping]
+    #[Assert\Country(alpha3: true)]
     private ?string $country = null;
 
     #[ORM\Column]
+    #[Assert\EnableAutoMapping]
+    #[Assert\GreaterThanOrEqual(1700)]
     private ?int $year = null;
 
     #[ORM\OneToMany(mappedBy: 'program', targetEntity: Season::class)]
     private Collection $seasons;
 
+    #[ORM\ManyToMany(targetEntity: Actor::class, mappedBy: 'programs')]
+    private Collection $actors;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
+        $this->actors = new ArrayCollection();
     }
 
 
@@ -146,6 +169,33 @@ class Program
             if ($season->getProgram() === $this) {
                 $season->setProgram(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Actor>
+     */
+    public function getActors(): Collection
+    {
+        return $this->actors;
+    }
+
+    public function addActor(Actor $actor): self
+    {
+        if (!$this->actors->contains($actor)) {
+            $this->actors->add($actor);
+            $actor->addProgram($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActor(Actor $actor): self
+    {
+        if ($this->actors->removeElement($actor)) {
+            $actor->removeProgram($this);
         }
 
         return $this;

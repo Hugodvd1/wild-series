@@ -13,19 +13,24 @@ use Faker\Factory;
 
 class EpisodeFixtures extends Fixture implements DependentFixtureInterface
 {
+    public static int $episodeNumber = 0;
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
-        for($i = 0; $i < 10; $i++) {
-            $episode = new Episode();
-            $episode->setTitle($faker->title());
-            $episode->setNumber($faker->numberBetween(1, 10));
-            $episode->setSynopsys($faker->paragraphs(3, true));
-            $this->addReference('episode_' . $i, $episode);
-            $episode->setSeason($this->getReference('season_' . $faker->numberBetween(0, 50)));
-
-            $manager->persist($episode);
+        for ($j=0; $j<SeasonFixtures::$seasonNumber; $j++) {
+            for($i = 0; $i < 10; $i++) {
+                $episode = new Episode();
+                $episode->setTitle($faker->title());
+                $episode->setNumber($faker->numberBetween(1, 10));
+                $episode->setSynopsys($faker->paragraphs(3, true));
+                $this->addReference('episode_' . self::$episodeNumber, $episode);
+                $episode->setSeason($this->getReference('season_' . $j));
+    
+                $manager->persist($episode);
+                self::$episodeNumber++;
+            }
         }
+        
 
         $manager->flush();
     }

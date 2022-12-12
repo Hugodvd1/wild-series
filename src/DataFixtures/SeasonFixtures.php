@@ -12,19 +12,24 @@ use Faker\Factory;
 
 class SeasonFixtures extends Fixture implements DependentFixtureInterface
 {
+    public static int $seasonNumber = 0;
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
-        for($i = 0; $i < 50; $i++) {
-            $season = new Season();
-            $season->setNumber($faker->numberBetween(1, 10));
-            $season->setYear($faker->year());
-            $season->setDescription($faker->paragraphs(3, true));
-            $this->addReference('season_' . $i, $season);
-            $season->setProgram($this->getReference('program_' . $faker->numberBetween(0, 4)));
-
-            $manager->persist($season);
+        for ($j=0; $j<ProgramFixtures::$programNumber; $j++) {
+            for($i = 0; $i < 5; $i++) {
+                $season = new Season();
+                $season->setNumber($faker->numberBetween(1, 10));
+                $season->setYear($faker->year());
+                $season->setDescription($faker->paragraphs(3, true));
+                $this->addReference('season_' . self::$seasonNumber, $season);
+                $season->setProgram($this->getReference('program_' . $j));
+    
+                $manager->persist($season);
+                self::$seasonNumber++;
+            }
         }
+        
 
         $manager->flush();
     }

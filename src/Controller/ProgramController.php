@@ -12,13 +12,21 @@ use App\Entity\Season;
 use App\Entity\Episode;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\ProgramType;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+
 
 #[Route('/program', name: 'program_')]
 class ProgramController extends AbstractController
 {
     #[Route('/', name: 'index')]
-    public function index(ProgramRepository $programRepository): Response
+    public function index(RequestStack $requestStack, ProgramRepository $programRepository): Response
     {
+        $session = $requestStack->getSession();
+        if (!$session->has('total')) {
+            $session->set('total', 0); // if total doesn’t exist in session, it is initialized.
+        }
+
         $programs = $programRepository->findAll();
         return $this->render('program/index.html.twig', [
             'programs' => $programs,
@@ -39,6 +47,8 @@ class ProgramController extends AbstractController
             // Deal with the submitted data
             // For example : persiste & flush the entity
             $programRepository->save($program, true);
+            $this->addFlash('success', 'The new program has been created');
+
             // And redirect to a route that display the result
             return $this->redirectToRoute('program_index');
         }
@@ -47,7 +57,7 @@ class ProgramController extends AbstractController
             'form' => $form,
         ]);
     }
-    
+
     #[Route('/show/{id}', methods: ['GET'], requirements: ['id' => '\d+'], name: 'show')]
     public function show(int $id, Program $program): Response
     {
@@ -87,5 +97,4 @@ class ProgramController extends AbstractController
             'episode' => $episode
         ]);
     }
-
 }

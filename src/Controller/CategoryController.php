@@ -57,7 +57,7 @@ public function show(string $categoryName, CategoryRepository $categoryRepositor
             'No program with name : '. $categoryName .' found in program\'s table.'
         );
     }
-    $programs = $programRepository->findBy(['category' => $category->getId()],['id' => 'DESC']);
+    $programs = $programRepository->findBy(['category' => $category->getId()],['id' => 'DESC'], 1);
     return $this->render('category/show.html.twig', [
         'category' => $category,
         'programs' => $programs,
